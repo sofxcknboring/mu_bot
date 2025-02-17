@@ -23,26 +23,33 @@ async def buy_subscription(callback_query: CallbackQuery) -> None:
         subscription = await check_subscription(user_id, db)
 
     final_price_for_user = get_final_price_for_user(subscription)
-
+    # Костыли ниже
     if subscription:
-        await callback_query.message.answer("Круто, видим вы уже ранее покупали подписку, для вас есть скидка!")
-
-    prices = [LabeledPrice(label="Обучение", amount=final_price_for_user)]
-    await callback_query.message.bot.send_invoice(
-        callback_query.message.chat.id,
-        title=config.product_title,
-        description=config.product_description,
-        provider_token=config.PROVIDER_TOKEN,
-        currency="RUB",
-        photo_url=config.product_photo,
-        photo_width=416 * 2,
-        photo_height=416 * 2,
-        photo_size=416 * 2,
-        is_flexible=False,
-        prices=prices,
-        start_parameter=config.product_start_parameter,
-        payload=config.product_payload
-    )
+        prices = [LabeledPrice(label="Обучение", amount=final_price_for_user)]
+        await callback_query.message.bot.send_invoice(
+            callback_query.message.chat.id,
+            title=config.product_title,
+            description="Продлить подписку",
+            provider_token=config.PROVIDER_TOKEN,
+            currency="RUB",
+            is_flexible=False,
+            prices=prices,
+            start_parameter=config.product_start_parameter,
+            payload=config.product_payload
+        )
+    else:
+        prices = [LabeledPrice(label="Обучение", amount=final_price_for_user)]
+        await callback_query.message.bot.send_invoice(
+            callback_query.message.chat.id,
+            title=config.product_title,
+            description=config.product_description,
+            provider_token=config.PROVIDER_TOKEN,
+            currency="RUB",
+            is_flexible=False,
+            prices=prices,
+            start_parameter=config.product_start_parameter,
+            payload=config.product_payload
+        )
 
 @router.callback_query(F.data == "training")
 async def training_button_click(callback_query: CallbackQuery) -> None:
@@ -53,6 +60,18 @@ async def training_button_click(callback_query: CallbackQuery) -> None:
     """
     await callback_query.answer(callback_query.id)
     await buy_subscription(callback_query)
+
+
+@router.callback_query(F.data == "renew_subscription")
+async def renew_subscription(callback_query: CallbackQuery) -> None:
+    """
+    Обработчик кнопки "Продлить подписку".
+    :param callback_query: колбэк запрос
+    :return: None
+    """
+    await callback_query.answer(callback_query.id)
+    await buy_subscription(callback_query)
+
 
 @router.pre_checkout_query()
 async def pre_checkout_handler(pre_checkout_query: PreCheckoutQuery) -> None:

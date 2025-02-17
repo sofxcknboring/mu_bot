@@ -16,7 +16,7 @@ def is_hot_price_date(year: int, month: int, day: int) -> bool:
 def get_final_price_for_user(subscription: bool) -> int:
     final_price = config.price
 
-    if is_hot_price_date(year=2025, month=2, day=19):
+    if is_hot_price_date(year=2025, month=2, day=20):
         final_price = config.hot_price
 
     if subscription:
