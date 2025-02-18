@@ -16,16 +16,20 @@ pipeline {
             steps {
                 sshagent(['jenkins-ssh-key']) {
                     script {
+                        // Получаем содержимое файла deploy.flag
                         def result = sh(script: "ssh -o StrictHostKeyChecking=no $SSH_USER@$VDS_IP 'cat /home/ts3server/deploy/deploy.flag || echo none'", returnStdout: true).trim()
 
+                        // Проверяем, есть ли запрос на деплой
                         if (result == "none") {
                             error("❌ Нет запроса на деплой, билд отменяется.")
                         }
 
-                        def parts = result.split(" ")
-                        BRANCH_NAME = parts[3].replace("BRANCH=", "")
-                        DEPLOY_PROD = parts[4].replace("DEPLOY_PROD=", "")
+                        // Извлекаем значения из файла
+                        def parts = result.split(",")
+                        BRANCH_NAME = parts[0].replace("BRANCH=", "").trim()
+                        DEPLOY_PROD = parts[1].replace("DEPLOY_PROD=", "").trim()
 
+                        // Определяем имя приложения
                         APP_NAME = (BRANCH_NAME == 'dev') ? 'mu_bot_test' : 'mu_bot'
 
                         echo "🚀 Запрос на деплой: BRANCH=${BRANCH_NAME}, DEPLOY_PROD=${DEPLOY_PROD}, APP_NAME=${APP_NAME}"
@@ -40,6 +44,10 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
+                    // Проверка доступных веток
+                    sh "git ls-remote --heads ${REPO_URL}"
+
+                    // Чекаут нужной ветки
                     checkout([$class: 'GitSCM',
                         branches: [[name: "origin/${BRANCH_NAME}"]],
                         userRemoteConfigs: [[
