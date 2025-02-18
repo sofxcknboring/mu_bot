@@ -1,3 +1,4 @@
+
 pipeline {
     agent any
 
@@ -15,7 +16,7 @@ pipeline {
             steps {
                 sshagent(['jenkins-ssh-key']) {
                     script {
-                        def result = sh(script: "ssh -o StrictHostKeyChecking=no $SSH_USER@$VDS_IP 'cat /opt/deploy.flag || echo none'", returnStdout: true).trim()
+                        def result = sh(script: "ssh -o StrictHostKeyChecking=no $SSH_USER@$VDS_IP 'cat /home/ts3server/deploy/deploy.flag || echo none'", returnStdout: true).trim()
 
                         if (result == "none") {
                             error("❌ Нет запроса на деплой, билд отменяется.")
@@ -30,7 +31,7 @@ pipeline {
                         echo "🚀 Запрос на деплой: BRANCH=${BRANCH_NAME}, DEPLOY_PROD=${DEPLOY_PROD}, APP_NAME=${APP_NAME}"
 
                         // Удаляем флаг на VDS
-                        sh "ssh $SSH_USER@$VDS_IP 'rm -f /opt/deploy.flag'"
+                        sh "ssh $SSH_USER@$VDS_IP 'rm -f /home/ts3server/deploy/deploy.flag'"
                     }
                 }
             }
