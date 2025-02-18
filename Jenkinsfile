@@ -44,10 +44,6 @@ pipeline {
         stage('Checkout') {
             steps {
                 script {
-                    // Проверка доступных веток
-                    sh "git ls-remote --heads ${REPO_URL}"
-
-                    // Чекаут нужной ветки
                     checkout([$class: 'GitSCM',
                         branches: [[name: "origin/${BRANCH_NAME}"]],
                         userRemoteConfigs: [[
