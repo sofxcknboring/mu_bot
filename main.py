@@ -1,13 +1,13 @@
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
-from config import BOT_TOKEN
+from config import BOT_TOKEN, TEST_BOT_TOKEN
 from handlers import start, payments
 from handlers.notifications import schedule_subscription_check
 
 logging.basicConfig(level=logging.INFO)
 
-bot = Bot(token=BOT_TOKEN)
+bot = Bot(token=TEST_BOT_TOKEN)
 dp = Dispatcher()
 
 dp.include_router(start.router)
